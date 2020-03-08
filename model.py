@@ -99,8 +99,8 @@ class RNNModel(nn.Module):
         self.decoder.bias.data.fill_(0)
         self.decoder.weight.data.uniform_(-initrange, initrange)
         if self.num_features > 0:
-            self.word_emb.weight.data.uniform_(-initrange, initrange)
-            self.feature_emb.weight.data.uniform_(-initrange, initrange)
+            self.word_emb.data.uniform_(-initrange, initrange)
+            self.feature_emb.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden, return_h=False):
         emb = embedded_dropout(self.input_layer(), input, dropout=self.dropoute if self.training else 0)
