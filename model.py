@@ -24,9 +24,9 @@ class RNNModel(nn.Module):
         if self.num_features == 0:
             self.encoder = nn.Embedding(ntoken, ninp)
         else:
-            self.word_emb = nn.Embedding(ntoken, feature_dim)
-            self.feature_emb = nn.Embedding(num_features, feature_dim)
-            self.encoder = nn.Embedding(num_features, ninp)
+            self.word_emb = nn.Parameter(torch.FloatTensor(ntoken, feature_dim))
+            self.feature_emb = nn.Parameter(torch.FloatTensor(num_features, feature_dim))
+            self.encoder = nn.Parameter(torch.FloatTensor(num_features, ninp))
 
         assert rnn_type in ['LSTM', 'QRNN', 'GRU'], 'RNN type is not supported'
         if rnn_type == 'LSTM':
