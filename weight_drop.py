@@ -2,6 +2,10 @@ import torch
 from torch.nn import Parameter
 from functools import wraps
 
+from absl import logging
+
+logging.set_verbosity(logging.INFO)
+
 class WeightDrop(torch.nn.Module):
     def __init__(self, module, weights, dropout=0, variational=False):
         super(WeightDrop, self).__init__()
@@ -24,7 +28,7 @@ class WeightDrop(torch.nn.Module):
             self.module.flatten_parameters = self.widget_demagnetizer_y2k_edition
 
         for name_w in self.weights:
-            print('Applying weight drop of {} to {}'.format(self.dropout, name_w))
+            logging.info('Applying weight drop of {} to {}'.format(self.dropout, name_w))
             w = getattr(self.module, name_w)
             del self.module._parameters[name_w]
             self.module.register_parameter(name_w + '_raw', Parameter(w.data))
@@ -56,30 +60,30 @@ if __name__ == '__main__':
 
     ###
 
-    print('Testing WeightDrop')
-    print('=-=-=-=-=-=-=-=-=-=')
+    logging.info('Testing WeightDrop')
+    logging.info('=-=-=-=-=-=-=-=-=-=')
 
     ###
 
-    print('Testing WeightDrop with Linear')
+    logging.info('Testing WeightDrop with Linear')
 
     lin = WeightDrop(torch.nn.Linear(10, 10), ['weight'], dropout=0.9)
     lin.cuda()
     run1 = [x.sum() for x in lin(x).data]
     run2 = [x.sum() for x in lin(x).data]
 
-    print('All items should be different')
-    print('Run 1:', run1)
-    print('Run 2:', run2)
+    logging.info('All items should be different')
+    logging.info('Run 1:', run1)
+    logging.info('Run 2:', run2)
 
     assert run1[0] != run2[0]
     assert run1[1] != run2[1]
 
-    print('---')
+    logging.info('---')
 
     ###
 
-    print('Testing WeightDrop with LSTM')
+    logging.info('Testing WeightDrop with LSTM')
 
     wdrnn = WeightDrop(torch.nn.LSTM(10, 10), ['weight_hh_l0'], dropout=0.9)
     wdrnn.cuda()
@@ -87,13 +91,13 @@ if __name__ == '__main__':
     run1 = [x.sum() for x in wdrnn(x, h0)[0].data]
     run2 = [x.sum() for x in wdrnn(x, h0)[0].data]
 
-    print('First timesteps should be equal, all others should differ')
-    print('Run 1:', run1)
-    print('Run 2:', run2)
+    logging.info('First timesteps should be equal, all others should differ')
+    logging.info('Run 1:', run1)
+    logging.info('Run 2:', run2)
 
     # First time step, not influenced by hidden to hidden weights, should be equal
     assert run1[0] == run2[0]
     # Second step should not
     assert run1[1] != run2[1]
 
-    print('---')
+    logging.info('---')

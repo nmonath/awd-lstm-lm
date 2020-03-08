@@ -13,16 +13,18 @@ export MKL_NUM_THREADS=$threads
 export OPENBLAS_NUM_THREADS=$threads
 export OMP_NUM_THREADS=$threads
 
-log_dir=logs/inf/$TIME
 
-mkdir -p $log_dir
 
 dataset="ptb"
-job_name="awd-lstm-$dataset-$TIME"
+model_name="awd-lstm"
+job_name="$model_name-$dataset-$TIME"
+log_dir=logs/$model_name/$dataset/$TIME
+log_base=$log_dir/$job_name
+mkdir -p $log_dir
 
 sbatch -J $job_name \
-            -e $log_dir/inf.err \
-            -o $log_dir/inf.log \
+            -e $log_base.err \
+            -o $log_base.log \
             --cpus-per-task $threads \
             --partition=$partition \
             --gres=gpu:$gpus \

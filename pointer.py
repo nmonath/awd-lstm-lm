@@ -9,7 +9,11 @@ from torch.autograd import Variable
 import data
 import model
 
+from absl import logging
+
 from utils import batchify, get_batch, repackage_hidden
+
+logging.set_verbosity(logging.INFO)
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn',
@@ -66,7 +70,7 @@ def evaluate(data_source, batch_size=10, window=args.window):
     next_word_history = None
     pointer_history = None
     for i in range(0, data_source.size(0) - 1, args.bptt):
-        if i > 0: print(i, len(data_source), math.exp(total_loss / i))
+        if i > 0: logging.info(i, len(data_source), math.exp(total_loss / i))
         data, targets = get_batch(data_source, i, evaluation=True, args=args)
         output, hidden, rnn_outs, _ = model(data, hidden, return_h=True)
         rnn_out = rnn_outs[-1].squeeze()
@@ -75,9 +79,9 @@ def evaluate(data_source, batch_size=10, window=args.window):
         # Fill pointer history
         start_idx = len(next_word_history) if next_word_history is not None else 0
         next_word_history = torch.cat([one_hot(t.data[0], ntokens) for t in targets]) if next_word_history is None else torch.cat([next_word_history, torch.cat([one_hot(t.data[0], ntokens) for t in targets])])
-        #print(next_word_history)
+        #logging.info(next_word_history)
         pointer_history = Variable(rnn_out.data) if pointer_history is None else torch.cat([pointer_history, Variable(rnn_out.data)], dim=0)
-        #print(pointer_history)
+        #logging.info(pointer_history)
         ###
         # Built-in cross entropy
         # total_loss += len(data) * criterion(output_flat, targets).data[0]
@@ -118,18 +122,18 @@ with open(args.save, 'rb') as f:
         model = torch.load(f, map_location=lambda storage, loc: storage)
     else:
         model = torch.load(f)
-print(model)
+logging.info(model)
 
 # Run on val data.
 val_loss = evaluate(val_data, test_batch_size)
-print('=' * 89)
-print('| End of pointer | val loss {:5.2f} | val ppl {:8.2f}'.format(
+logging.info('=' * 89)
+logging.info('| End of pointer | val loss {:5.2f} | val ppl {:8.2f}'.format(
     val_loss, math.exp(val_loss)))
-print('=' * 89)
+logging.info('=' * 89)
 
 # Run on test data.
 test_loss = evaluate(test_data, test_batch_size)
-print('=' * 89)
-print('| End of pointer | test loss {:5.2f} | test ppl {:8.2f}'.format(
+logging.info('=' * 89)
+logging.info('| End of pointer | test loss {:5.2f} | test ppl {:8.2f}'.format(
     test_loss, math.exp(test_loss)))
-print('=' * 89)
+logging.info('=' * 89)

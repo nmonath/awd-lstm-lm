@@ -5,6 +5,9 @@ import torch.nn as nn
 
 import numpy as np
 
+from absl import logging
+
+logging.set_verbosity(logging.INFO)
 
 class SplitCrossEntropyLoss(nn.Module):
     r'''SplitCrossEntropyLoss calculates an approximate softmax'''
@@ -106,8 +109,8 @@ class SplitCrossEntropyLoss(nn.Module):
     def forward(self, weight, bias, hiddens, targets, verbose=False):
         if self.verbose or verbose:
             for idx in sorted(self.stats):
-                print('{}: {}'.format(idx, int(np.mean(self.stats[idx]))), end=', ')
-            print()
+                logging.info('{}: {}'.format(idx, int(np.mean(self.stats[idx]))), end=', ')
+            logging.info()
 
         total_loss = None
         if len(hiddens.size()) > 2: hiddens = hiddens.view(-1, hiddens.size(2))
@@ -190,11 +193,11 @@ if __name__ == '__main__':
         x = torch.autograd.Variable((torch.rand(N, 1) * 0.999 * V).int().long())
         y = embed(prev).squeeze()
         c = crit(embed.weight, bias, y, x.view(N))
-        print('Crit', c.exp().data[0])
+        logging.info('Crit', c.exp().data[0])
 
         logprobs = crit.logprob(embed.weight, bias, y[:2]).exp()
-        print(logprobs)
-        print(logprobs.sum(dim=1))
+        logging.info(logprobs)
+        logging.info(logprobs.sum(dim=1))
 
         optimizer.zero_grad()
         c.backward()
