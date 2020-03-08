@@ -2,10 +2,10 @@
 
 set -exu
 
-mem=${1:-12000}
-threads=${2:-4}
-gpus=${3:-1}
-partition=${4:-1080ti-short}
+partition=${1:-1080ti-short}
+mem=${2:-12000}
+threads=${3:-4}
+gpus=${4:-1}
 
 TIME=`(date +%Y-%m-%d-%H-%M-%S)`
 
