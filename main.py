@@ -55,6 +55,8 @@ parser.add_argument('--nonmono', type=int, default=5,
                     help='random seed')
 parser.add_argument('--cuda', action='store_true',
                     help='use CUDA')
+parser.add_argument('--tied', action='store_true',
+                    help='use tied weights')
 parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='report interval')
 randomhash = ''.join(str(time.time()).split('.'))
@@ -73,7 +75,7 @@ parser.add_argument('--optimizer', type=str,  default='sgd',
 parser.add_argument('--when', nargs="+", type=int, default=[-1],
                     help='When (which epochs) to divide the learning rate by 10 - accepts multiple')
 args = parser.parse_args()
-args.tied = True
+# args.tied = True
 
 # Set the random seed manually for reproducibility.
 np.random.seed(args.seed)
