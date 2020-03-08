@@ -45,6 +45,10 @@ parser.add_argument('--dropoute', type=float, default=0.1,
                     help='dropout to remove words from embedding layer (0 = no dropout)')
 parser.add_argument('--wdrop', type=float, default=0.5,
                     help='amount of weight dropout to apply to the RNN hidden to hidden matrix')
+parser.add_argument('--num_features', type=int, default=0,
+                    help='num features to use')
+parser.add_argument('--feature_dim', type=int, default=0,
+                    help='feature dim to use')
 parser.add_argument('--seed', type=int, default=1111,
                     help='random seed')
 parser.add_argument('--nonmono', type=int, default=5,
@@ -118,7 +122,8 @@ from splitcross import SplitCrossEntropyLoss
 criterion = None
 
 ntokens = len(corpus.dictionary)
-model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth, args.dropouti, args.dropoute, args.wdrop, args.tied)
+model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth,
+                       args.dropouti, args.dropoute, args.wdrop, args.tied, args.num_features, args.feature_dim)
 ###
 if args.resume:
     logging.info('Resuming model ...')
@@ -150,8 +155,8 @@ if args.cuda:
 ###
 params = list(model.parameters()) + list(criterion.parameters())
 total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
-logging.info('Args:', args)
-logging.info('Model total parameters:', total_params)
+logging.info('Args: %s', args)
+logging.info('Model total parameters: %s', total_params)
 
 ###############################################################################
 # Training code

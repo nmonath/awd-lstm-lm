@@ -11,13 +11,23 @@ logging.set_verbosity(logging.INFO)
 class RNNModel(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
-    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, dropouth=0.5, dropouti=0.5, dropoute=0.1, wdrop=0, tie_weights=False):
+    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5,
+                 dropouth=0.5, dropouti=0.5, dropoute=0.1, wdrop=0, tie_weights=False,
+                 num_features=0, feature_dim=0):
         super(RNNModel, self).__init__()
         self.lockdrop = LockedDropout()
         self.idrop = nn.Dropout(dropouti)
         self.hdrop = nn.Dropout(dropouth)
         self.drop = nn.Dropout(dropout)
-        self.encoder = nn.Embedding(ntoken, ninp)
+        self.num_features = num_features
+        self.feature_dims = feature_dim
+        if self.num_features == 0:
+            self.encoder = nn.Embedding(ntoken, ninp)
+        else:
+            self.word_emb = nn.Embedding(ntoken, feature_dim)
+            self.feature_emb = nn.Embedding(num_features, feature_dim)
+            self.encoder = nn.Embedding(num_features, ninp)
+
         assert rnn_type in ['LSTM', 'QRNN', 'GRU'], 'RNN type is not supported'
         if rnn_type == 'LSTM':
             self.rnns = [torch.nn.LSTM(ninp if l == 0 else nhid, nhid if l != nlayers - 1 else (ninp if tie_weights else nhid), 1, dropout=0) for l in range(nlayers)]
@@ -59,6 +69,24 @@ class RNNModel(nn.Module):
         self.dropoute = dropoute
         self.tie_weights = tie_weights
 
+        if self.num_features == 0:
+            logging.info('Using normal encoder model')
+            self._input_layer_fn = self.normal_encoder
+        else:
+            logging.info('Using feature encoder model %s %s', self.num_features, self.feature_dims)
+            self._input_layer_fn = self.feature_encoder
+
+    def input_layer(self):
+        return self._input_layer_fn()
+
+    def normal_encoder(self):
+        return self.encoder
+
+    def feature_encoder(self):
+        Z = torch.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)))
+        emb = torch.matmul(Z, self.encoder)
+        return emb
+
     def reset(self):
         if self.rnn_type == 'QRNN': [r.reset() for r in self.rnns]
 
@@ -67,6 +95,9 @@ class RNNModel(nn.Module):
         self.encoder.weight.data.uniform_(-initrange, initrange)
         self.decoder.bias.data.fill_(0)
         self.decoder.weight.data.uniform_(-initrange, initrange)
+        if self.num_features > 0:
+            self.word_emb.weight.data.uniform_(-initrange, initrange)
+            self.feature_emb.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden, return_h=False):
         emb = embedded_dropout(self.encoder, input, dropout=self.dropoute if self.training else 0)
