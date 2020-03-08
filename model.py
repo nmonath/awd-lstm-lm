@@ -22,7 +22,8 @@ class RNNModel(nn.Module):
         self.num_features = num_features
         self.feature_dims = feature_dim
         if self.num_features == 0:
-            self.encoder = nn.Embedding(ntoken, ninp)
+            # self.encoder = nn.Embedding(ntoken, ninp)
+            self.encoder = nn.Parameter(torch.FloatTensor(ntoken, ninp))
         else:
             self.word_emb = nn.Parameter(torch.FloatTensor(ntoken, feature_dim))
             self.feature_emb = nn.Parameter(torch.FloatTensor(num_features, feature_dim))
@@ -53,9 +54,10 @@ class RNNModel(nn.Module):
         # "Tying Word Vectors and Word Classifiers: A Loss Framework for Language Modeling" (Inan et al. 2016)
         # https://arxiv.org/abs/1611.01462
         if tie_weights:
+            assert self.num_features == 0, "Its not supported to tie weights and use feature models right now."
             #if nhid != ninp:
             #    raise ValueError('When using the tied flag, nhid must be equal to emsize')
-            self.decoder.weight = self.encoder.weight
+            self.decoder.weight = self.encoder
 
         self.init_weights()
 
@@ -92,7 +94,8 @@ class RNNModel(nn.Module):
 
     def init_weights(self):
         initrange = 0.1
-        self.encoder.weight.data.uniform_(-initrange, initrange)
+        # self.encoder.weight.data.uniform_(-initrange, initrange)
+        self.encoder.data.uniform_(-initrange, initrange)
         self.decoder.bias.data.fill_(0)
         self.decoder.weight.data.uniform_(-initrange, initrange)
         if self.num_features > 0:
