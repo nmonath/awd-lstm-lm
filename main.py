@@ -150,8 +150,8 @@ if args.cuda:
 ###
 params = list(model.parameters()) + list(criterion.parameters())
 total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
-logging.info('Args:', args)
-logging.info('Model total parameters:', total_params)
+logging.info('Args: %s', args)
+logging.info('Model total parameters: %s', total_params)
 
 ###############################################################################
 # Training code
