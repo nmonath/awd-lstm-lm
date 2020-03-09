@@ -22,7 +22,7 @@ import torch
 #   return X
 
 
-def embedded_dropout(embed, words, dropout=0.1, scale=None, sparse=True, padding_idx=None, max_norm=None, norm_type=2, scale_grad_by_freq=False):
+def embedded_dropout(embed, words, dropout=0.1, scale=None, sparse=False, padding_idx=None, max_norm=None, norm_type=2, scale_grad_by_freq=False):
   if dropout:
     mask = embed.data.new().resize_((embed.size(0), 1)).bernoulli_(1 - dropout).expand_as(embed) / (1 - dropout)
     masked_embed_weight = mask * embed
