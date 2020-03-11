@@ -7,7 +7,7 @@ import torch.nn as nn
 
 import data
 import model
-import os
+import subprocess
 
 from absl import logging
 
@@ -80,7 +80,7 @@ args = parser.parse_args()
 
 logging.info('Using torch version %s', torch.__version__)
 logging.info('torch.cuda.is_available() %s', torch.cuda.is_available())
-logging.info('nvcc --version %s', os.system('nvcc --version'))
+logging.info('nvcc --version %s', subprocess.check_output('nvcc --version', shell=True))
 
 # Set the random seed manually for reproducibility.
 np.random.seed(args.seed)
@@ -254,11 +254,14 @@ try:
     for epoch in range(1, args.epochs+1):
         epoch_start_time = time.time()
         train()
-        if 't0' in optimizer.param_groups[0]:
+        # https://github.com/salesforce/awd-lstm-lm/issues/70
+        if 't0' in optimizer.param_groups[0]:  # if ASGD
             tmp = {}
             for prm in model.parameters():
                 tmp[prm] = prm.data.clone()
-                prm.data = optimizer.state[prm]['ax'].clone()
+                if 'ax' in optimizer.state[
+                    prm]:  # added this line because of error: File "main.py", line 268, in <module> prm.data = optimizer.state[prm]['ax'].clone() KeyError: 'ax'
+                    prm.data = optimizer.state[prm]['ax'].clone()
 
             val_loss2 = evaluate(val_data)
             logging.info('-' * 89)
@@ -272,8 +275,15 @@ try:
                 logging.info('Saving Averaged!')
                 stored_loss = val_loss2
 
+            # https://github.com/salesforce/awd-lstm-lm/issues/70
+            nparams = 0
+            nparams_in_temp_keys = 0
             for prm in model.parameters():
-                prm.data = tmp[prm].clone()
+                nparams += 1
+                if prm in tmp.keys():
+                    nparams_in_temp_keys += 1
+                    prm.data = tmp[prm].clone()
+            print('params {}, params in tmp keys: {}'.format(nparams, nparams_in_temp_keys))
 
         else:
             val_loss = evaluate(val_data, eval_batch_size)
