@@ -7,6 +7,7 @@ import torch.nn as nn
 
 import data
 import model
+import os
 
 from absl import logging
 
@@ -76,6 +77,10 @@ parser.add_argument('--when', nargs="+", type=int, default=[-1],
                     help='When (which epochs) to divide the learning rate by 10 - accepts multiple')
 args = parser.parse_args()
 # args.tied = True
+
+logging.info('Using torch version %s', torch.__version__)
+logging.info('torch.cuda.is_available() %s', torch.cuda.is_available())
+logging.info('nvcc --version %s', os.system('nvcc --version'))
 
 # Set the random seed manually for reproducibility.
 np.random.seed(args.seed)
