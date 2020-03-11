@@ -31,5 +31,5 @@ sbatch -J $job_name \
             --ntasks=1 \
             --nodes=1 \
             --mem=$mem \
-            --time=0-01:00 \
+            --time=0-04:00 \
             bin/run_ptb.sh

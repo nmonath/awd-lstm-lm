@@ -10,6 +10,4 @@ python main.py \
 --seed 141 \
 --epoch 500 \
 --save PTB.pt \
---cuda \
---num_features 100 \
---feature_dim 16
+--cuda
