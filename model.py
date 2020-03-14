@@ -27,7 +27,7 @@ class RNNModel(nn.Module):
         else:
             self.word_emb = nn.Parameter(torch.FloatTensor(ntoken, feature_dim))
             self.feature_emb = nn.Parameter(torch.FloatTensor(num_features, feature_dim))
-            self.feature_relu_bias = torch.FloatTensor([feature_relu_bias])
+            self.feature_relu_bias = nn.Parameter(torch.FloatTensor([feature_relu_bias]),requires_grad=False)
             self.encoder = nn.Parameter(torch.FloatTensor(num_features, ninp))
 
         assert rnn_type in ['LSTM', 'QRNN', 'GRU'], 'RNN type is not supported'
