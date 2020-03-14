@@ -50,6 +50,8 @@ parser.add_argument('--num_features', type=int, default=0,
                     help='num features to use')
 parser.add_argument('--feature_dim', type=int, default=0,
                     help='feature dim to use')
+parser.add_argument('--sparsity_num_steps', type=int, default=0,
+                    help='num sparsity_num_steps to use')
 parser.add_argument('--seed', type=int, default=1111,
                     help='random seed')
 parser.add_argument('--nonmono', type=int, default=5,
@@ -183,6 +185,12 @@ def evaluate(data_source, batch_size=10):
         hidden = repackage_hidden(hidden)
     return total_loss.item() / len(data_source)
 
+def optimize_sparsity(model, optimizer, num_steps):
+    for _ in num_steps:
+        optimizer.zero_grad()
+        model.feature_model_sparsity_loss()
+        model.backward()
+        optimizer.step()
 
 def train():
     # Turn on training mode which enables dropout.
@@ -237,6 +245,8 @@ def train():
         ###
         batch += 1
         i += seq_len
+        if args.num_features > 0 and batch % args.sparsity_every == 0:
+            optimize_sparsity(model, optimizer, args.sparsity_num_steps)
 
 # Loop over epochs.
 lr = args.lr

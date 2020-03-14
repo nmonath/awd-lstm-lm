@@ -13,7 +13,7 @@ class RNNModel(nn.Module):
 
     def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5,
                  dropouth=0.5, dropouti=0.5, dropoute=0.1, wdrop=0, tie_weights=False,
-                 num_features=0, feature_dim=0):
+                 num_features=0, feature_dim=0, feature_relu_bias=2.0):
         super(RNNModel, self).__init__()
         self.lockdrop = LockedDropout()
         self.idrop = nn.Dropout(dropouti)
@@ -27,6 +27,7 @@ class RNNModel(nn.Module):
         else:
             self.word_emb = nn.Parameter(torch.FloatTensor(ntoken, feature_dim))
             self.feature_emb = nn.Parameter(torch.FloatTensor(num_features, feature_dim))
+            self.feature_relu_bias = torch.FloatTensor([feature_relu_bias])
             self.encoder = nn.Parameter(torch.FloatTensor(num_features, ninp))
 
         assert rnn_type in ['LSTM', 'QRNN', 'GRU'], 'RNN type is not supported'
@@ -78,6 +79,9 @@ class RNNModel(nn.Module):
             logging.info('Using feature encoder model %s %s', self.num_features, self.feature_dims)
             self._input_layer_fn = self.feature_encoder
 
+    def comp_fn(self, child, parent):
+        pass
+
     def input_layer(self):
         return self._input_layer_fn()
 
@@ -85,7 +89,7 @@ class RNNModel(nn.Module):
         return self.encoder
 
     def feature_encoder(self):
-        Z = torch.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)))
+        Z = torch.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
         emb = torch.matmul(Z, self.encoder)
         return emb
 
@@ -101,6 +105,11 @@ class RNNModel(nn.Module):
         if self.num_features > 0:
             self.word_emb.data.uniform_(-initrange, initrange)
             self.feature_emb.data.uniform_(-initrange, initrange)
+
+    def feature_model_sparsity_loss(self):
+        z = torch.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
+        logging.info('z.sum() = %s, (z > 0).sum() = %s', z.sum(), (z > 0).sum())
+        return z.sum()
 
     def forward(self, input, hidden, return_h=False):
         emb = embedded_dropout(self.input_layer(), input, dropout=self.dropoute if self.training else 0)
