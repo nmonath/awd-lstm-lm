@@ -108,7 +108,7 @@ class RNNModel(nn.Module):
 
     def feature_model_sparsity_loss(self):
         z = torch.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
-        logging.info('z.sum() = %s, (z > 0).sum() = %s', z.sum(), (z > 0).sum())
+        logging.info('z.sum() = %s, (z > 0).sum() = %s bias = %s', z.sum(), (z > 0).sum(), self.feature_relu_bias)
         return z.sum()
 
     def forward(self, input, hidden, return_h=False):
