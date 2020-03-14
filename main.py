@@ -252,7 +252,7 @@ def train():
         batch += 1
         i += seq_len
         if args.num_features > 0 and batch % args.sparsity_every == 0:
-            optimize_sparsity(model, optimizer, args.sparsity_num_steps)
+            optimize_sparsity(model, sparse_optimizer, args.sparsity_num_steps)
 
 # Loop over epochs.
 lr = args.lr
@@ -262,6 +262,7 @@ stored_loss = 100000000
 # At any point you can hit Ctrl + C to break out of training early.
 try:
     optimizer = None
+    sparse_optimizer = torch.optim.SGD(params, lr=args.lr)
     # Ensure the optimizer is optimizing params, which includes both the model's weights as well as the criterion's weight (i.e. Adaptive Softmax)
     if args.optimizer == 'sgd':
         optimizer = torch.optim.SGD(params, lr=args.lr, weight_decay=args.wdecay)

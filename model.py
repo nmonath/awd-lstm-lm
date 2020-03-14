@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from absl import logging
 from embed_regularize import embedded_dropout
@@ -89,7 +90,7 @@ class RNNModel(nn.Module):
         return self.encoder
 
     def feature_encoder(self):
-        Z = torch.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
+        Z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
         emb = torch.matmul(Z, self.encoder)
         return emb
 
@@ -107,7 +108,7 @@ class RNNModel(nn.Module):
             self.feature_emb.data.uniform_(-initrange, initrange)
 
     def feature_model_sparsity_loss(self):
-        z = torch.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
+        z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
         logging.info('z.sum() = %s, (z > 0).sum() = %s bias = %s', z.sum(), (z > 0).sum(), self.feature_relu_bias)
         return z.sum()
 
