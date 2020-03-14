@@ -264,7 +264,7 @@ stored_loss = 100000000
 # At any point you can hit Ctrl + C to break out of training early.
 try:
     optimizer = None
-    sparse_optimizer = torch.optim.SGD(params, lr=args.lr)
+    sparse_optimizer = torch.optim.SGD(params, lr=0.00001)
     # Ensure the optimizer is optimizing params, which includes both the model's weights as well as the criterion's weight (i.e. Adaptive Softmax)
     if args.optimizer == 'sgd':
         optimizer = torch.optim.SGD(params, lr=args.lr, weight_decay=args.wdecay)
