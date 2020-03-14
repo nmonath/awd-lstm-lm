@@ -167,6 +167,7 @@ if args.cuda:
     criterion = criterion.cuda()
 ###
 params = list(model.parameters()) + list(criterion.parameters())
+params = [x for x in params if x.requires_grad]
 total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
 logging.info('Args: %s', args)
 logging.info('Model total parameters: %s', total_params)
