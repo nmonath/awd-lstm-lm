@@ -190,8 +190,8 @@ def evaluate(data_source, batch_size=10):
 def optimize_sparsity(model, optimizer, num_steps):
     for _ in range(num_steps):
         optimizer.zero_grad()
-        model.feature_model_sparsity_loss()
-        model.backward()
+        loss = model.feature_model_sparsity_loss()
+        loss.backward()
         optimizer.step()
 
 def train():
