@@ -54,7 +54,7 @@ parser.add_argument('--sparsity_every', type=int, default=100,
                     help='feature dim to use')
 parser.add_argument('--sparsity_bias', type=int, default=0.001,
                     help='sparsity relu bias')
-parser.add_argument('--sparsity_num_steps', type=int, default=10,
+parser.add_argument('--sparsity_num_steps', type=int, default=10000,
                     help='num sparsity_num_steps to use')
 parser.add_argument('--seed', type=int, default=1111,
                     help='random seed')
