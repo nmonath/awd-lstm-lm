@@ -188,7 +188,7 @@ def evaluate(data_source, batch_size=10):
     return total_loss.item() / len(data_source)
 
 def optimize_sparsity(model, optimizer, num_steps):
-    for _ in num_steps:
+    for _ in range(num_steps):
         optimizer.zero_grad()
         model.feature_model_sparsity_loss()
         model.backward()
