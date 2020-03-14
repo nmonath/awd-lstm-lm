@@ -52,6 +52,8 @@ parser.add_argument('--feature_dim', type=int, default=0,
                     help='feature dim to use')
 parser.add_argument('--sparsity_every', type=int, default=100,
                     help='feature dim to use')
+parser.add_argument('--sparsity_bias', type=int, default=0.25,
+                    help='sparsity relu bias')
 parser.add_argument('--sparsity_num_steps', type=int, default=10,
                     help='num sparsity_num_steps to use')
 parser.add_argument('--seed', type=int, default=1111,
@@ -134,7 +136,7 @@ criterion = None
 
 ntokens = len(corpus.dictionary)
 model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth,
-                       args.dropouti, args.dropoute, args.wdrop, args.tied, args.num_features, args.feature_dim)
+                       args.dropouti, args.dropoute, args.wdrop, args.tied, args.num_features, args.feature_dim, args.sparsity_bias)
 ###
 if args.resume:
     logging.info('Resuming model ...')
