@@ -199,6 +199,7 @@ def optimize_sparsity(model, optimizer, num_steps):
         optimizer.step()
 
 def train():
+    logging.info('Starting training, running sparsity!')
     optimize_sparsity(model, sparse_optimizer, args.sparsity_num_steps)
     # Turn on training mode which enables dropout.
     if args.model == 'QRNN': model.reset()
