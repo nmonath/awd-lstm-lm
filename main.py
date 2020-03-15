@@ -205,7 +205,7 @@ def optimize_sparsity(model, optimizer, num_steps):
     model.cache_emb()
     for _ in range(num_steps):
         optimizer.zero_grad()
-        loss = model.feature_model_sparsity_loss(args.sparsity_lambda1, args.sparsity_lambda2,
+        loss = model.feature_model_sparsity_loss(args.sparsity_lambda_1, args.sparsity_lambda_2,
                                                  args.sparsity_average_1, args.sparsity_average_2)
         loss.backward()
         optimizer.step()
