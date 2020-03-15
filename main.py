@@ -52,8 +52,18 @@ parser.add_argument('--feature_dim', type=int, default=0,
                     help='feature dim to use')
 parser.add_argument('--sparsity_every', type=int, default=100,
                     help='feature dim to use')
-parser.add_argument('--sparsity_bias', type=int, default=0.001,
+parser.add_argument('--sparsity_bias', type=float, default=0.001,
                     help='sparsity relu bias')
+parser.add_argument('--sparsity_lr', type=float, default=0.0001,
+                    help='sparsity learning rate')
+parser.add_argument('--sparsity_lambda_1', type=float, default=0.0001,
+                    help='sparsity learning rate')
+parser.add_argument('--sparsity_lambda_2', type=float, default=0.0001,
+                    help='sparsity learning rate')
+parser.add_argument('--sparsity_average_1', type=int, default=1,
+                    help='sparsity learning rate')
+parser.add_argument('--sparsity_average_2', type=float, default=1,
+                    help='sparsity learning rate')
 parser.add_argument('--sparsity_num_steps', type=int, default=10000,
                     help='num sparsity_num_steps to use')
 parser.add_argument('--seed', type=int, default=1111,
@@ -192,15 +202,16 @@ def evaluate(data_source, batch_size=10):
     return total_loss.item() / len(data_source)
 
 def optimize_sparsity(model, optimizer, num_steps):
+    model.cache_emb()
     for _ in range(num_steps):
         optimizer.zero_grad()
-        loss = model.feature_model_sparsity_loss()
+        loss = model.feature_model_sparsity_loss(args.sparsity_lambda1, args.sparsity_lambda2,
+                                                 args.sparsity_average_1, args.sparsity_average_2)
         loss.backward()
         optimizer.step()
 
 def train():
-    logging.info('Starting training, running sparsity!')
-    optimize_sparsity(model, sparse_optimizer, args.sparsity_num_steps)
+    logging.info('Starting training!')
     # Turn on training mode which enables dropout.
     if args.model == 'QRNN': model.reset()
     total_loss = 0
@@ -264,7 +275,7 @@ stored_loss = 100000000
 # At any point you can hit Ctrl + C to break out of training early.
 try:
     optimizer = None
-    sparse_optimizer = torch.optim.SGD(params, lr=0.00001)
+    sparse_optimizer = torch.optim.SGD(params, lr=args.sparsity_lr)
     # Ensure the optimizer is optimizing params, which includes both the model's weights as well as the criterion's weight (i.e. Adaptive Softmax)
     if args.optimizer == 'sgd':
         optimizer = torch.optim.SGD(params, lr=args.lr, weight_decay=args.wdecay)

@@ -30,6 +30,8 @@ class RNNModel(nn.Module):
             self.feature_emb = nn.Parameter(torch.FloatTensor(num_features, feature_dim))
             self.feature_relu_bias = nn.Parameter(torch.FloatTensor([feature_relu_bias]),requires_grad=False)
             self.encoder = nn.Parameter(torch.FloatTensor(num_features, ninp))
+            self.word_emb_cache = None
+            self.feature_emb_cache = None
 
         assert rnn_type in ['LSTM', 'QRNN', 'GRU'], 'RNN type is not supported'
         if rnn_type == 'LSTM':
@@ -83,6 +85,10 @@ class RNNModel(nn.Module):
     def comp_fn(self, child, parent):
         pass
 
+    def cache_emb(self):
+        self.word_emb_cache = self.word_emb.clone().detach()
+        self.feature_emb_cache = self.feature_emb.clone().detach()
+
     def input_layer(self):
         return self._input_layer_fn()
 
@@ -107,10 +113,26 @@ class RNNModel(nn.Module):
             self.word_emb.data.uniform_(-initrange, initrange)
             self.feature_emb.data.uniform_(-initrange, initrange)
 
-    def feature_model_sparsity_loss(self):
+    def feature_model_sparsity_loss(self, lambda1, lambda2, avg1, avg2):
+        if avg1:
+            word_l2_dist = torch.mean(torch.pow(self.word_emb - self.word_emb_cache, 2))
+            feat_l2_dist = torch.mean(torch.pow(self.feature_emb - self.feature_emb_cache, 2))
+        else:
+            word_l2_dist = torch.sum(torch.pow(self.word_emb - self.word_emb_cache, 2))
+            feat_l2_dist = torch.sum(torch.pow(self.feature_emb - self.feature_emb_cache, 2))
         z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
-        logging.info('z.sum() = %s, (z > 0).sum() = %s bias = %s', z.sum(), (z > 0).sum(), self.feature_relu_bias)
-        return z.sum()
+        z_sum = z.sum()
+        z_gt_0_sum = (z > 0).sum()
+        if avg2:
+            z_sparse = z.mean()
+        else:
+            z_sparse = z.sum(dim=1).mean()
+
+        loss = lambda1 * word_l2_dist + lambda1 * feat_l2_dist + lambda2 * z_sparse
+        logging.log_every_n(logging.INFO, 'word %s | feat %s | z %s | z_sum %s | z > 0 %s',
+                            10, word_l2_dist, feat_l2_dist, z_sparse, z_sum, z_gt_0_sum)
+        # logging.info('z.sum() = %s, (z > 0).sum() = %s bias = %s', z.sum(), (z > 0).sum(), self.feature_relu_bias)
+        return loss
 
     def forward(self, input, hidden, return_h=False):
         emb = embedded_dropout(self.input_layer(), input, dropout=self.dropoute if self.training else 0)
