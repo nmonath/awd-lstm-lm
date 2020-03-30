@@ -54,7 +54,7 @@ parser.add_argument('--sparsity_every', type=int, default=100,
                     help='feature dim to use')
 parser.add_argument('--sparsity_bias', type=float, default=0.001,
                     help='sparsity relu bias')
-parser.add_argument('--sparsity_lr', type=float, default=0.0001,
+parser.add_argument('--sparsity_lr', type=float, default=0.1,
                     help='sparsity learning rate')
 parser.add_argument('--sparsity_lambda_1', type=float, default=0.0001,
                     help='sparsity learning rate')
