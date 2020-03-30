@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.distributions.bernoulli import Bernoulli
 
 from absl import logging
 from embed_regularize import embedded_dropout
@@ -120,7 +121,9 @@ class RNNModel(nn.Module):
         else:
             word_l2_dist = torch.sum(torch.pow(self.word_emb - self.word_emb_cache, 2))
             feat_l2_dist = torch.sum(torch.pow(self.feature_emb - self.feature_emb_cache, 2))
-        z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
+        # z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
+        b = Bernoulli(F.sigmoid(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0))))
+        z = b.sample()
         z_sum = z.sum()
         # z_gt_0 = torch.zeros_like(z)
         z_gt_0 = torch.sign(z)
