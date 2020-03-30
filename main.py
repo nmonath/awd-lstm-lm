@@ -201,12 +201,19 @@ def evaluate(data_source, batch_size=10):
         hidden = repackage_hidden(hidden)
     return total_loss.item() / len(data_source)
 
-def optimize_sparsity(model, optimizer, num_steps):
+def grad_norm(params):
+    total = 0.0
+    for p in params:
+        total += p.grad.norm().cpu().detach().numpy()
+    return total
+
+def optimize_sparsity(model, optimizer, num_steps, params):
     model.cache_emb()
     for _ in range(num_steps):
         optimizer.zero_grad()
         loss = model.feature_model_sparsity_loss(args.sparsity_lambda_1, args.sparsity_lambda_2,
                                                  args.sparsity_average_1, args.sparsity_average_2)
+        logging.info('Sparse grad norm: %s', grad_norm(params))
         loss.backward()
         optimizer.step()
 
@@ -265,7 +272,7 @@ def train():
         batch += 1
         i += seq_len
         if args.num_features > 0 and batch % args.sparsity_every == 0:
-            optimize_sparsity(model, sparse_optimizer, args.sparsity_num_steps)
+            optimize_sparsity(model, sparse_optimizer, args.sparsity_num_steps, params)
 
 # Loop over epochs.
 lr = args.lr
