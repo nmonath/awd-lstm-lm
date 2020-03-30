@@ -125,7 +125,7 @@ class RNNModel(nn.Module):
         z_gt_0 = (z > 0)
         z_gt_0_sum = z_gt_0.sum()
         if avg2:
-            z_sparse = z_gt_0.mean()
+            z_sparse = z_gt_0.sum()
         else:
             z_sparse = z_gt_0.sum(dim=1).mean()
 
