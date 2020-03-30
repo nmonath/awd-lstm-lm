@@ -122,7 +122,8 @@ class RNNModel(nn.Module):
             feat_l2_dist = torch.sum(torch.pow(self.feature_emb - self.feature_emb_cache, 2))
         z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
         z_sum = z.sum()
-        z_gt_0 = (z > 0).float()
+        z_gt_0 = torch.zeros_like(z)
+        torch.sign(z, out=z_gt_0)
         z_gt_0_sum = z_gt_0.sum()
         if avg2:
             z_sparse = z_gt_0.sum()
