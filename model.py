@@ -129,8 +129,8 @@ class RNNModel(nn.Module):
             z_sparse = z.sum(dim=1).mean()
 
         loss = lambda1 * word_l2_dist + lambda1 * feat_l2_dist + lambda2 * z_sparse
-        logging.log_every_n(logging.INFO, 'word %s | feat %s | z %s | z_sum %s | z > 0 %s',
-                            10, word_l2_dist, feat_l2_dist, z_sparse, z_sum, z_gt_0_sum)
+        logging.log_every_n(logging.INFO, 'loss %s | word %s | feat %s | z %s | z_sum %s | z > 0 %s',
+                            10, loss.cpu().detach().numpy(), word_l2_dist.cpu().detach().numpy(), feat_l2_dist.cpu().detach().numpy(), z_sparse.cpu().detach().numpy(), z_sum.cpu().detach().numpy(), z_gt_0_sum.cpu().detach().numpy())
         # logging.info('z.sum() = %s, (z > 0).sum() = %s bias = %s', z.sum(), (z > 0).sum(), self.feature_relu_bias)
         return loss
 
