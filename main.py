@@ -50,7 +50,7 @@ parser.add_argument('--num_features', type=int, default=0,
                     help='num features to use')
 parser.add_argument('--feature_dim', type=int, default=0,
                     help='feature dim to use')
-parser.add_argument('--sparsity_every', type=int, default=100,
+parser.add_argument('--sparsity_every', type=int, default=500,
                     help='feature dim to use')
 parser.add_argument('--sparsity_bias', type=float, default=0.01,
                     help='sparsity relu bias')
@@ -64,7 +64,7 @@ parser.add_argument('--sparsity_average_1', type=int, default=1,
                     help='sparsity learning rate')
 parser.add_argument('--sparsity_average_2', type=float, default=1,
                     help='sparsity learning rate')
-parser.add_argument('--sparsity_num_steps', type=int, default=10000,
+parser.add_argument('--sparsity_num_steps', type=int, default=500,
                     help='num sparsity_num_steps to use')
 parser.add_argument('--seed', type=int, default=1111,
                     help='random seed')
