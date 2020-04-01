@@ -117,7 +117,7 @@ class RNNModel(nn.Module):
 
     def compute_z(self):
         # Z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
-        Z = F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1)
+        Z = F.relu(F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1) - self.feature_relu_bias)
         return Z
 
     def feature_model_sparsity_loss(self, lambda1, lambda2, avg1, avg2):
@@ -136,9 +136,9 @@ class RNNModel(nn.Module):
         z_gt_0 = torch.sign(z)
         z_gt_0_sum = z_gt_0.sum()
         if avg2:
-            z_sparse = z_gt_0.sum()
+            z_sparse = z_sum.sum()
         else:
-            z_sparse = z_gt_0.sum(dim=1).mean()
+            z_sparse = z_sum.sum(dim=1).mean()
 
         loss = lambda1 * word_l2_dist + lambda1 * feat_l2_dist + lambda2 * z_sparse
         logging.log_every_n(logging.INFO, 'loss %s | word %s | feat %s | z %s | z_sum %s | z > 0 %s',
