@@ -97,7 +97,8 @@ class RNNModel(nn.Module):
         return self.encoder
 
     def feature_encoder(self):
-        Z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
+        # Z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
+        Z = self.compute_z()
         emb = torch.matmul(Z, self.encoder)
         return emb
 
@@ -114,6 +115,11 @@ class RNNModel(nn.Module):
             self.word_emb.data.uniform_(-initrange, initrange)
             self.feature_emb.data.uniform_(-initrange, initrange)
 
+    def compute_z(self):
+        # Z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
+        Z = F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1)
+        return Z
+
     def feature_model_sparsity_loss(self, lambda1, lambda2, avg1, avg2):
         if avg1:
             word_l2_dist = torch.mean(torch.pow(self.word_emb - self.word_emb_cache, 2))
@@ -122,8 +128,9 @@ class RNNModel(nn.Module):
             word_l2_dist = torch.sum(torch.pow(self.word_emb - self.word_emb_cache, 2))
             feat_l2_dist = torch.sum(torch.pow(self.feature_emb - self.feature_emb_cache, 2))
         # z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
-        b = Bernoulli(F.sigmoid(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0))))
-        z = b.sample()
+        # b = Bernoulli(F.sigmoid(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0))))
+        # z = b.sample()
+        z = self.compute_z()
         z_sum = z.sum()
         # z_gt_0 = torch.zeros_like(z)
         z_gt_0 = torch.sign(z)
