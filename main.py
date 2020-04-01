@@ -213,7 +213,7 @@ def optimize_sparsity(model, optimizer, num_steps, params):
         optimizer.zero_grad()
         loss = model.feature_model_sparsity_loss(args.sparsity_lambda_1, args.sparsity_lambda_2,
                                                  args.sparsity_average_1, args.sparsity_average_2)
-        logging.info('Sparse grad norm: %s', grad_norm(params))
+        # logging.info('Sparse grad norm: %s', grad_norm(params))
         loss.backward()
         optimizer.step()
 
