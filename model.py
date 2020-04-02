@@ -7,7 +7,7 @@ from absl import logging
 from embed_regularize import embedded_dropout
 from locked_dropout import LockedDropout
 from weight_drop import WeightDrop
-from sparsemax import row_wise_sparsemax
+from sparsemax import row_wise_sparsemax,Sparsemax
 
 logging.set_verbosity(logging.INFO)
 
@@ -76,6 +76,7 @@ class RNNModel(nn.Module):
         self.dropouth = dropouth
         self.dropoute = dropoute
         self.tie_weights = tie_weights
+        self.sparse_max = Sparsemax(dim=1)
 
         if self.num_features == 0:
             logging.info('Using normal encoder model')
@@ -119,7 +120,7 @@ class RNNModel(nn.Module):
     def compute_z(self):
         # Z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
         # Z = F.relu(F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1) - self.feature_relu_bias)
-        Z = row_wise_sparsemax.apply(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)))
+        Z = self.sparse_max(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)))
         return Z
 
     def feature_model_sparsity_loss(self, lambda1, lambda2, avg1, avg2):
