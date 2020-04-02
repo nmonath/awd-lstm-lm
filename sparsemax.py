@@ -8,7 +8,7 @@ from __future__ import division
 
 import torch
 import torch.nn as nn
-
+from absl import logging
 
 class Sparsemax(nn.Module):
     """Sparsemax function."""
@@ -77,7 +77,7 @@ class Sparsemax(nn.Module):
     def backward(self, grad_output):
         """Backward function."""
         dim = 1
-
+        logging.log_first_n(logging.INFO, 'In sparsemax backward', 10)
         nonzeros = torch.ne(self.output, 0)
         sum = torch.sum(grad_output * nonzeros, dim=dim) / torch.sum(nonzeros, dim=dim)
         self.grad_input = nonzeros * (grad_output - sum.expand_as(grad_output))
