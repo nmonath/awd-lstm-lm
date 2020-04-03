@@ -145,7 +145,7 @@ class row_wise_sparsemax(torch.autograd.Function):
     def backward(ctx, grad_output):
         """Backward function."""
         dim = 1
-        selfoutput = ctx.saved_tensors
+        selfoutput, = ctx.saved_tensors
         logging.log_first_n(logging.INFO, '[backward] selfoutput.shape %s', 10, str(selfoutput.shape))
         nonzeros = torch.ne(selfoutput, 0).float()
         sum = torch.sum(grad_output * nonzeros, dim=dim) / torch.sum(nonzeros, dim=dim)
