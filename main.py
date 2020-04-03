@@ -271,7 +271,7 @@ def train():
         ###
         batch += 1
         i += seq_len
-        if args.num_features > 0 and batch % args.sparsity_every == 0:
+        if args.num_features > 0 and args.sparsity_every > 0 and batch % args.sparsity_every == 0:
             optimize_sparsity(model, sparse_optimizer, args.sparsity_num_steps, params)
 
 # Loop over epochs.
