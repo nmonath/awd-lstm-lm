@@ -11,5 +11,5 @@ python main.py \
 --epoch 500 \
 --save PTB.pt \
 --cuda \
---num_features 100 \
+--num_features 500 \
 --feature_dim 16
