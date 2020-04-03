@@ -148,8 +148,8 @@ class row_wise_sparsemax(torch.autograd.Function):
         selfoutput, = ctx.saved_tensors
         logging.log_first_n(logging.INFO, '[backward] selfoutput.shape %s', 10, str(selfoutput.shape))
         nonzeros = torch.ne(selfoutput, 0).float()
-        sum = torch.sum(grad_output * nonzeros, dim=dim) / torch.sum(nonzeros, dim=dim)
-        grad_input = nonzeros * (grad_output - sum.expand_as(grad_output))
+        sum = torch.sum(grad_output * nonzeros, dim=dim, keepdim=True) / torch.sum(nonzeros, dim=dim, keepdim=True)
+        grad_input = nonzeros * (grad_output - sum) #.expand_as(grad_output))
 
         return grad_input
 
