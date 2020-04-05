@@ -120,7 +120,8 @@ class RNNModel(nn.Module):
     def compute_z(self):
         # Z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
         # Z = F.relu(F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1) - self.feature_relu_bias)
-        Z = row_wise_sparsemax.apply(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)))
+        # Z = row_wise_sparsemax.apply(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)))
+        Z = F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1)
         # z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
         # b = Bernoulli(F.sigmoid(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0))))
         # Z = b.rsample()
