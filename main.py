@@ -364,6 +364,11 @@ try:
                 logging.info('Saving model (new best validation)')
                 stored_loss = val_loss
                 try:
+                    with open(outdir + '/dict.pkl', 'wb') as fout:
+                        pickle.dump(corpus.dictionary, fout)
+                except:
+                    logging.info('couldnt save dict')
+                try:
                     Z = model.compute_z()
                     np.save(outdir + '/Z.npy', Z.cpu().detach().numpy())
                 except:
