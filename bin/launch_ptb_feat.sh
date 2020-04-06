@@ -7,6 +7,12 @@ mem=${2:-12000}
 threads=${3:-4}
 gpus=${4:-1}
 
+num_features=${5:-500}
+feature_dim=${6:-32}
+sparsity_every=${7:-100}
+sparsity_num_steps=${8:-100}
+sparsity_lr=${9:-0.001}
+
 TIME=`(date +%Y-%m-%d-%H-%M-%S)`
 
 export MKL_NUM_THREADS=$threads
@@ -32,4 +38,4 @@ sbatch -J $job_name \
             --nodes=1 \
             --mem=$mem \
             --time=0-04:00 \
-            bin/run_ptb_feat.sh
+            bin/run_ptb_feat.sh $TIME $num_features $feature_dim $sparsity_every $sparsity_num_steps $sparsity_lr

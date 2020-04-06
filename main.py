@@ -4,6 +4,7 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
+import json
 
 import data
 import model
@@ -279,6 +280,8 @@ lr = args.lr
 best_val_loss = []
 stored_loss = 100000000
 
+jsonresults = open(os.pardir(args.save) + 'dev_results.json', 'w')
+
 # At any point you can hit Ctrl + C to break out of training early.
 try:
     optimizer = None
@@ -306,6 +309,11 @@ try:
                 'valid ppl {:8.2f} | valid bpc {:8.3f}'.format(
                     epoch, (time.time() - epoch_start_time), val_loss2, math.exp(val_loss2), val_loss2 / math.log(2)))
             logging.info('-' * 89)
+
+            val_results = {'epoch': epoch, 'time': time.time() - epoch_start_time, 'val_loss': val_loss2, 'val_ppl': math.exp(val_loss2), 'valid_bpc': val_loss2 / math.log(2)}
+            jsonresults.write(json.dumps(val_results))
+            jsonresults.write('\n')
+            jsonresults.flush()
 
             if val_loss2 < stored_loss:
                 model_save(args.save)
