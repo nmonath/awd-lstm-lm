@@ -28,4 +28,4 @@ python main.py \
 --feature_dim $feature_dim \
 --sparsity_every $sparsity_every \
 --sparsity_num_steps $sparsity_num_steps \
---sparsity_lr $sparsity_lr 
+--sparsity_lr $sparsity_lr
