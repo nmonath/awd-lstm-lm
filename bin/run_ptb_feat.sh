@@ -18,15 +18,14 @@ outdir="exp_out/$ts/feat_f${num_features}_d${feature_dim}_se${sparsity_every}_sn
 python main.py \
 --batch_size 20 \
 --data data/penn \
---dropouti 0.4 \
---dropouth 0.25 \
+--dropouti $dropouti \
+--dropouth $dropouth \
 --seed 141 \
 --epoch 500 \
 --save $outdir/model.pt \
 --cuda \
---num_features 500 \
---feature_dim 32 \
---sparsity_every 100 \
---sparsity_num_steps 100 \
---sparsity_lr 0.001 \
---sparsity_bias 0.001
+--num_features $num_features \
+--feature_dim $feature_dim \
+--sparsity_every $sparsity_every \
+--sparsity_num_steps $sparsity_num_steps \
+--sparsity_lr $sparsity_lr 
