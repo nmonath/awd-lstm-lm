@@ -12,5 +12,7 @@ python main.py \
 --save PTB.pt \
 --cuda \
 --num_features 500 \
---feature_dim 16 \
---sparsity_every 0
+--feature_dim 32 \
+--sparsity_every 100 \
+--sparsity_num_steps 100 \
+--sparsity_lr 0.001
