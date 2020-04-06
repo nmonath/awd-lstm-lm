@@ -76,7 +76,6 @@ class RNNModel(nn.Module):
         self.dropouth = dropouth
         self.dropoute = dropoute
         self.tie_weights = tie_weights
-        self.sparse_max = Sparsemax(dim=1)
 
         if self.num_features == 0:
             logging.info('Using normal encoder model')
@@ -119,8 +118,8 @@ class RNNModel(nn.Module):
 
     def compute_z(self):
         # Z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
-        # Z = F.relu(F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1) - self.feature_relu_bias)
-        Z = row_wise_sparsemax.apply(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)))
+        Z = F.relu(F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1) - self.feature_relu_bias)
+        # Z = row_wise_sparsemax.apply(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)))
         # Z = F.softmax(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)), dim=1)
         # z = F.relu(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0)) - self.feature_relu_bias)
         # b = Bernoulli(F.sigmoid(torch.matmul(self.word_emb, torch.transpose(self.feature_emb, 1, 0))))

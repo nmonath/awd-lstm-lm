@@ -15,4 +15,5 @@ python main.py \
 --feature_dim 32 \
 --sparsity_every 100 \
 --sparsity_num_steps 100 \
---sparsity_lr 0.001
+--sparsity_lr 0.001 \
+--sparsity_bias 0.001
