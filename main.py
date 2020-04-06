@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import json
-
+import pickle
 import data
 import model
 import subprocess
@@ -322,6 +322,11 @@ try:
                 model_save(args.save)
                 logging.info('Saving Averaged!')
                 stored_loss = val_loss2
+                try:
+                    with open(outdir + '/dict.pkl', 'wb') as fout:
+                        pickle.dump(corpus.dictionary, fout)
+                except:
+                    logging.info('couldnt save dict')
                 try:
                     Z = model.compute_z()
                     np.save(outdir + '/Z.npy', Z.cpu().detach().numpy())
