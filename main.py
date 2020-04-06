@@ -281,6 +281,7 @@ best_val_loss = []
 stored_loss = 100000000
 
 outdir = os.pathsep.join(os.path.split(args.save)[:-1])
+os.makedirs(outdir, exist_ok=True)
 # At any point you can hit Ctrl + C to break out of training early.
 try:
     optimizer = None
