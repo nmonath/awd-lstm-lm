@@ -346,7 +346,7 @@ try:
               epoch, (time.time() - epoch_start_time), val_loss, math.exp(val_loss), val_loss / math.log(2)))
             logging.info('-' * 89)
 
-            val_results = {'epoch': epoch, 'time': time.time() - epoch_start_time, 'val_loss': val_loss2, 'val_ppl': math.exp(val_loss2), 'valid_bpc': val_loss2 / math.log(2)}
+            val_results = {'epoch': epoch, 'time': time.time() - epoch_start_time, 'val_loss': val_loss, 'val_ppl': math.exp(val_loss), 'valid_bpc': val_loss / math.log(2)}
             logging.info('writing dev results to %s', outdir + '/dev_results.json')
             jsonresults = open(outdir + '/dev_results.json', 'a')
             jsonresults.write(json.dumps(val_results))
