@@ -322,6 +322,11 @@ try:
                 model_save(args.save)
                 logging.info('Saving Averaged!')
                 stored_loss = val_loss2
+                try:
+                    Z = model.compute_z()
+                    np.save(outdir + '/Z.npy', Z.cpu().detach().numpy())
+                except:
+                    logging.info('couldnt save Z')
 
             # https://github.com/salesforce/awd-lstm-lm/issues/70
             nparams = 0
@@ -341,10 +346,23 @@ try:
               epoch, (time.time() - epoch_start_time), val_loss, math.exp(val_loss), val_loss / math.log(2)))
             logging.info('-' * 89)
 
+            val_results = {'epoch': epoch, 'time': time.time() - epoch_start_time, 'val_loss': val_loss2, 'val_ppl': math.exp(val_loss2), 'valid_bpc': val_loss2 / math.log(2)}
+            logging.info('writing dev results to %s', outdir + '/dev_results.json')
+            jsonresults = open(outdir + '/dev_results.json', 'a')
+            jsonresults.write(json.dumps(val_results))
+            jsonresults.write('\n')
+            jsonresults.flush()
+            jsonresults.close()
+
             if val_loss < stored_loss:
                 model_save(args.save)
                 logging.info('Saving model (new best validation)')
                 stored_loss = val_loss
+                try:
+                    Z = model.compute_z()
+                    np.save(outdir + '/Z.npy', Z.cpu().detach().numpy())
+                except:
+                    logging.info('couldnt save Z')
 
             if args.optimizer == 'sgd' and 't0' not in optimizer.param_groups[0] and (len(best_val_loss)>args.nonmono and val_loss > min(best_val_loss[:-args.nonmono])):
                 logging.info('Switching to ASGD')
