@@ -280,7 +280,7 @@ lr = args.lr
 best_val_loss = []
 stored_loss = 100000000
 
-outdir = os.pathsep.join(os.path.split(args.save)[:-1])
+outdir = os.pathsep.join(os.path.split(args.save)[0:-1])
 os.makedirs(outdir, exist_ok=True)
 # At any point you can hit Ctrl + C to break out of training early.
 try:
@@ -311,6 +311,7 @@ try:
             logging.info('-' * 89)
 
             val_results = {'epoch': epoch, 'time': time.time() - epoch_start_time, 'val_loss': val_loss2, 'val_ppl': math.exp(val_loss2), 'valid_bpc': val_loss2 / math.log(2)}
+            logging.info('writing dev results to %s', outdir + '/dev_results.json')
             jsonresults = open(outdir + '/dev_results.json', 'a')
             jsonresults.write(json.dumps(val_results))
             jsonresults.write('\n')
